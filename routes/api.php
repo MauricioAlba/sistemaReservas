@@ -1,6 +1,8 @@
 <?php
 
+use App\Http\Controllers\AuthController;
 use App\Http\Controllers\EnvironmentController;
+use App\Http\Controllers\ReservationController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 
@@ -15,15 +17,34 @@ use Illuminate\Support\Facades\Route;
 |
 */
 
-Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
-    return $request->user();
+Route::middleware('auth:sanctum')->group(function(){
+    Route::get('/auth/user', function (Request $request) {
+        return $request->user();
+    });
+
+    //AUTH
+    Route::post('/auth/logout', [AuthController::class, 'logout']);
+    Route::post('/auth/register', [AuthController::class, 'register']);
+    
+    //ENVIROMENTS
+    Route::post('/environment', [EnvironmentController::class, 'store']);
+    Route::get('/environment/{id}', [EnvironmentController::class, 'show']);
+    Route::get('/environment', [EnvironmentController::class, 'index']);
+    Route::delete('/environment/{id}', [EnvironmentController::class, 'destroy']);
+    Route::put('/environment/{id}', [EnvironmentController::class, 'update']);
+});
+
+
+//RESERVATIONS
+Route::controller(ReservationController::class)->group(function(){
+    Route::get('/reservations/{userID}', 'reservationbyUserID');
+    Route::get('/reservations/{environmentID}', 'reservationbyEnvironmentID');
+    Route::get('/reservations', 'index');
 });
 
 
 
-//ENVIROMENTS
-Route::post('/environment', [EnvironmentController::class, 'store']);
-Route::get('/environment/{id}', [EnvironmentController::class, 'show']);
-Route::get('/environment', [EnvironmentController::class, 'index']);
-Route::delete('/environment/{id}', [EnvironmentController::class, 'destroy']);
-Route::put('/environment/{id}', [EnvironmentController::class, 'update']);
+
+
+
+Route::post('/auth/login', [AuthController::class, 'login']);
